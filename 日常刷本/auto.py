@@ -4,7 +4,7 @@ from pymouse import PyMouse
 import numpy as np
 import time
 import threading
-def auto():
+def auto(host = False ):
 
     start_p = cv2.imread('start.png', 0)
     start_yyh_p = cv2.imread('start_yyh.png', 0)
@@ -14,33 +14,34 @@ def auto():
     count = 0
     while True:
         img = get_picture()
-        r,x,y = find_pattern(img, start_p,0.6)
-        if r:
-            touch(x,y)
-            print('识别了开始刷本的pattern，开始刷本 %d 次' % count)
-            count += 1
-            continue
-        r, x, y = find_pattern(img,start_yyh_p)
-        if r:
-            touch(x,y)
-
-            print('识别了开始刷业原火副本的pattern，开始刷本 %d 次' % count)
-            count += 1
-            continue
+        if host:
+            r,x,y = find_pattern(img, start_p,0.6)
+            if r:
+                touch(x,y)
+                print('识别了开始刷本的pattern，开始刷本 %d 次' % count)
+                count += 1
+                # continue
+        # r, x, y = find_pattern(img,start_yyh_p)
+        # if r:
+        #     touch(x,y)
+        #
+        #     print('识别了开始刷业原火副本的pattern，开始刷本 %d 次' % count)
+        #     count += 1
+        #     continue
         r,x,y = find_pattern(img,end_p)
         if r:
             touch(x+200, y+50)
+            touch(x+200, y+50)
             print('识别了刷本结束的pattern')
             time.sleep(0.5)
-            touch(x+200, y+50)
-            continue
+            # continue
 
-        r,x,y = find_pattern(img,finsih_p)
-        if r:
-            touch(x,y)
-            print("x:%d,y:%d"%(x,y))
-            print('一次刷本Finish')
-            continue
+        # r,x,y = find_pattern(img,finsih_p)
+        # if r:
+        #     touch(x,y)
+        #     print("x:%d,y:%d"%(x,y))
+        #     print('一次刷本Finish')
+        #     continue
 # auto()
 
 def react(pattern, response, t):
@@ -150,11 +151,13 @@ def auto_rihefang_mt():
             t.start()
         for t in threads:
             t.join()
-        for t in threads:
+        for i,t in enumerate(threads):
             if t.result[0]:
+
                 touch(t.result[1],t.result[2])
                 break
         time.sleep(0.5)
 # auto_rihefang_mt()
 # auto_common()
-auto()
+auto(True)
+# auto()

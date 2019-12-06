@@ -2,9 +2,11 @@ from settings import *
 from PIL import ImageGrab
 import cv2
 from pymouse import PyMouse
+import pythoncom
 import numpy as np
 import time
 import threading
+import pyHook
 bbox = (0, 0, 2560, 1440)
 THRESHOLD = 0.9
 m = PyMouse()
@@ -52,3 +54,50 @@ class pattern_thread(threading.Thread):
             return
         r,x,y = find_pattern(self.img, self.pattern, self.threashold)
         self.result = (r,x,y)
+
+
+
+def monitor_keyboard(key=' ',fun = None):
+    # 创建一个“钩子”管理对象
+    hm = pyHook.HookManager()
+    # 监听所有键盘事件
+    hm.KeyDown = onKeyboardEvent
+    # 设置键盘“钩子”
+    hm.HookKeyboard()
+    pythoncom.PumpMessages()
+
+class keyboard_thread(threading.Thread):
+    def __init__(self, key=' ',fun = None):
+        threading.Thread.__init__(self)
+        self.key =  key
+        self.fun = fun
+    def run(self):
+        self.state = 0
+        def onKeyboardEvent(event):
+            # 监听键盘事件
+            if event.MessageName=='key down' and event.KeyID == self.key:
+                self.state = 1
+            print(event.MessageName)
+            print(event.Message)
+            print(event.Time)
+            print(event.Window)
+            print(event.WindowName)
+            print(event.Ascii)
+            print(event.Key)
+
+            print(event.KeyID)
+            print(event.ScanCode)
+            print(event.Extended)
+            print(event.Injected)
+            print(event.Alt)
+            print(event.Transition)
+            # 同鼠标事件监听函数的返回值
+            return True
+        if self.fun:
+            self.fun(self.key)
+            return
+        r,x,y = find_pattern(self.img, self.pattern, self.threashold)
+        self.result = (r,x,y)
+
+if __name__ == '__main__':
+    monitor_keyboard()
